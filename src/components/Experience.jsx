@@ -1,4 +1,4 @@
-import { Environment, Float, OrbitControls } from "@react-three/drei";
+import { Float, OrbitControls } from "@react-three/drei";
 import { Book } from "./Book";
 
 export const Experience = () => {
@@ -13,10 +13,13 @@ export const Experience = () => {
         <Book />
       </Float>
       <OrbitControls />
-      <Environment preset="studio"></Environment>
+      {/* No HDR environment: its bright softboxes overexposed the pages.
+          Ambient + directional sum to ~PI so a page facing the light shows
+          its printed colors at 1:1 without clipping. */}
+      <ambientLight intensity={1.9} />
       <directionalLight
         position={[2, 5, 2]}
-        intensity={1.2}
+        intensity={1.1}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}

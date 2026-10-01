@@ -69,13 +69,11 @@ pageGeometry.setAttribute(
 const whiteColor = new Color("white");
 const emissiveColor = new Color("orange");
 
-// Matte paper: high roughness + dimmed environment reflections so the
-// printed text stays readable instead of glaring under the lights
+// Matte paper: high roughness so the printed text never glares
 const printedPaper = {
   color: whiteColor,
-  roughness: 0.75,
+  roughness: 0.95,
   metalness: 0,
-  envMapIntensity: 0.6,
   emissive: emissiveColor,
   emissiveIntensity: 0,
 };
