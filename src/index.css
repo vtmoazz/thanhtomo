@@ -6,7 +6,7 @@
 #root {
   width: 100vw;
   height: 100vh;
-  background: radial-gradient(#e7a6dc, #2b2230 80%);
+  background: radial-gradient(#fffdf6, #e6f4dc 80%);
 }
 
 body {
@@ -14,5 +14,5 @@ body {
 }
 
 .outline-text {
-  -webkit-text-stroke: 1px white;
+  -webkit-text-stroke: 1px #e7a6dc;
 }

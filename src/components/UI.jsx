@@ -16,16 +16,16 @@ for (let i = 0; i < pictures.length; i += 2) {
 }
 
 const marqueeWords = [
-  { text: "Vân Thanh", className: "text-white text-10xl font-black" },
-  { text: "Ivy Phạm", className: "text-white text-8xl italic font-light" },
-  { text: "Tìm và hiểu về", className: "text-white text-12xl font-bold" },
+  { text: "Vân Thanh", className: "text-[#e7a6dc]/60 text-10xl font-black" },
+  { text: "Ivy Phạm", className: "text-[#e7a6dc]/60 text-8xl italic font-light" },
+  { text: "Tìm và hiểu về", className: "text-[#e7a6dc]/60 text-12xl font-bold" },
   {
     text: "bản thân",
     className: "text-transparent text-12xl font-bold italic outline-text",
   },
-  { text: "Ma Kết", className: "text-white text-9xl font-medium" },
-  { text: "@thanhtomo", className: "text-white text-9xl font-extralight italic" },
-  { text: "Daily Routine", className: "text-white text-13xl font-bold" },
+  { text: "Ma Kết", className: "text-[#e7a6dc]/60 text-9xl font-medium" },
+  { text: "@thanhtomo", className: "text-[#e7a6dc]/60 text-9xl font-extralight italic" },
+  { text: "Daily Routine", className: "text-[#e7a6dc]/60 text-13xl font-bold" },
   {
     text: "khác biệt",
     className: "text-transparent text-13xl font-bold outline-text italic",
@@ -51,16 +51,21 @@ export const UI = () => {
   }, [page]);
 
   const buttonClass = (active) =>
-    `border-transparent hover:border-white transition-all duration-300 px-4 py-3 rounded-full text-lg uppercase shrink-0 border ${
-      active ? "bg-white/90 text-black" : "bg-black/30 text-white"
+    `border-transparent hover:border-neutral-800 transition-all duration-300 px-4 py-3 rounded-full text-lg uppercase shrink-0 border ${
+      active ? "bg-neutral-800 text-white" : "bg-white/70 text-neutral-800"
     }`;
 
   return (
     <>
       <main className="pointer-events-none select-none z-10 fixed inset-0 flex justify-between flex-col">
-        <p className="mt-10 ml-10 text-white text-xl font-semibold">
-          @thanhtomo
-        </p>
+        <header className="mt-8 px-6 text-center text-neutral-800">
+          <h1 className="text-2xl md:text-4xl font-bold">
+            Ở đây có một em bé 21 tuổi hay tò mò
+          </h1>
+          <p className="mt-2 text-base md:text-lg font-medium text-neutral-500">
+            @thanhtomo
+          </p>
+        </header>
         <div className="w-full overflow-auto pointer-events-auto flex justify-center">
           <div className="overflow-auto flex items-center gap-4 max-w-full p-10">
             {pages.map((_, index) => (

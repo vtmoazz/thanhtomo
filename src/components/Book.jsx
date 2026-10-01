@@ -69,6 +69,17 @@ pageGeometry.setAttribute(
 const whiteColor = new Color("white");
 const emissiveColor = new Color("orange");
 
+// Matte paper: high roughness + dimmed environment reflections so the
+// printed text stays readable instead of glaring under the lights
+const printedPaper = {
+  color: whiteColor,
+  roughness: 0.75,
+  metalness: 0,
+  envMapIntensity: 0.6,
+  emissive: emissiveColor,
+  emissiveIntensity: 0,
+};
+
 // BoxGeometry face order: +x, -x, +y, -y, +z (front), -z (back)
 const pageMaterials = [
   new MeshStandardMaterial({ color: whiteColor }),
@@ -81,15 +92,11 @@ pages.forEach((page) => {
   useTexture.preload(`/textures/${page.front}.jpg`);
   useTexture.preload(`/textures/${page.back}.jpg`);
 });
-useTexture.preload(`/textures/book-cover-roughness.jpg`);
 
 const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
-  const isCover = number === 0;
-  const isBackCover = number === pages.length - 1;
-  const [picture, picture2, pictureRoughness] = useTexture([
+  const [picture, picture2] = useTexture([
     `/textures/${front}.jpg`,
     `/textures/${back}.jpg`,
-    ...(isCover || isBackCover ? [`/textures/book-cover-roughness.jpg`] : []),
   ]);
   picture.colorSpace = picture2.colorSpace = SRGBColorSpace;
 
@@ -110,22 +117,8 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
 
     const materials = [
       ...pageMaterials,
-      new MeshStandardMaterial({
-        color: whiteColor,
-        map: picture,
-        ...(isCover ? { roughnessMap: pictureRoughness } : { roughness: 0.1 }),
-        emissive: emissiveColor,
-        emissiveIntensity: 0,
-      }),
-      new MeshStandardMaterial({
-        color: whiteColor,
-        map: picture2,
-        ...(isBackCover
-          ? { roughnessMap: pictureRoughness }
-          : { roughness: 0.1 }),
-        emissive: emissiveColor,
-        emissiveIntensity: 0,
-      }),
+      new MeshStandardMaterial({ map: picture, ...printedPaper }),
+      new MeshStandardMaterial({ map: picture2, ...printedPaper }),
     ];
     const mesh = new SkinnedMesh(pageGeometry, materials);
     mesh.castShadow = true;

@@ -16,7 +16,7 @@ export const Experience = () => {
       <Environment preset="studio"></Environment>
       <directionalLight
         position={[2, 5, 2]}
-        intensity={2.5}
+        intensity={1.2}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -24,7 +24,7 @@ export const Experience = () => {
       />
       <mesh position-y={-1.5} rotation-x={-Math.PI / 2} receiveShadow>
         <planeGeometry args={[100, 100]} />
-        <shadowMaterial transparent opacity={0.2} />
+        <shadowMaterial transparent opacity={0.12} />
       </mesh>
     </>
   );
