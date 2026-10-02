@@ -1,6 +1,6 @@
 import { useCursor, useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { easing } from "maath";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -17,7 +17,7 @@ import {
   Vector3,
 } from "three";
 import { degToRad } from "three/src/math/MathUtils.js";
-import { pageAtom, pages } from "./UI";
+import { pageAtom, pages, readerAtom } from "./UI";
 
 const easingFactor = 0.5; // how fast a page turns
 const easingFactorFold = 0.3; // how fast a page folds while turning
@@ -127,7 +127,7 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
     return mesh;
   }, []);
 
-  const [, setPage] = useAtom(pageAtom);
+  const setReader = useSetAtom(readerAtom);
   const [highlighted, setHighlighted] = useState(false);
   useCursor(highlighted);
 
@@ -203,7 +203,13 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
       }}
       onClick={(e) => {
         e.stopPropagation();
-        setPage(opened ? number : number + 1);
+        // Ignore the click that ends an orbit drag
+        if (e.delta > 4) return;
+        // The stacked sheets are too thin to trust which one the ray hit,
+        // so only use its side: turned sheets lie left, showing the spread's
+        // left picture (previous sheet's back); the rest show its right one
+        const picture = opened ? page * 2 - 1 : page * 2;
+        setReader(MathUtils.clamp(picture, 0, pages.length * 2 - 1));
         setHighlighted(false);
       }}
     >

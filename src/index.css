@@ -16,3 +16,11 @@ body {
 .outline-text {
   -webkit-text-stroke: 1px #e7a6dc;
 }
+
+/* Swipeable reader track: keep native scrolling, hide the bar */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

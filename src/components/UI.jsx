@@ -2,12 +2,18 @@ import { atom, useAtom } from "jotai";
 import { useEffect } from "react";
 
 // Pages exported from Canva "Vài điều về Vân Thanh" (1080x1350, 4:5)
-const pictures = Array.from(
+export const pictures = Array.from(
   { length: 10 },
   (_, i) => `page-${String(i + 1).padStart(2, "0")}`
 );
 
 export const pageAtom = atom(0);
+
+// Index into `pictures` shown in the 2D reader, or null when it is closed
+export const readerAtom = atom(null);
+
+// Spread that shows a picture: page N shows sheet N-1's back and sheet N's front
+export const spreadOfPicture = (pictureIndex) => Math.ceil(pictureIndex / 2);
 
 // Each sheet has a front and a back: cover = page-01, back cover = page-10
 export const pages = [];
@@ -64,6 +70,9 @@ export const UI = () => {
           </h1>
           <p className="mt-2 text-base md:text-lg font-medium text-neutral-500">
             @thanhtomo
+          </p>
+          <p className="mt-1 text-sm text-neutral-400">
+            Bấm vào trang để đọc
           </p>
         </header>
         <div className="w-full overflow-auto pointer-events-auto flex justify-center">
