@@ -1,5 +1,12 @@
 import { useAtom, useSetAtom } from "jotai";
-import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import HTMLFlipBook from "react-pageflip";
 import { pageAtom, pictures, readerAtom, spreadOfPicture } from "./UI";
 
@@ -16,6 +23,76 @@ const measure = () => {
   const width = Math.floor(Math.min(maxW, maxH / PAGE_RATIO));
   return { width, height: Math.floor(width * PAGE_RATIO), portrait };
 };
+
+// page-flip turns back without any animation in portrait (single page)
+// mode. Instead, show the previous page and play its forward flip in
+// reverse, so it sweeps in from the left like a real page. Covers taps,
+// swipes, slow drags, the arrow buttons and the keyboard.
+const BACK = 1; // page-flip's FlipDirection.BACK
+const animatePortraitBackFlip = (pageFlip) => {
+  if (pageFlip.backFlipPatched) return;
+  pageFlip.backFlipPatched = true;
+  const ctrl = pageFlip.getFlipController();
+  const render = pageFlip.getRender();
+  const flip = ctrl.flip.bind(ctrl);
+  const fold = ctrl.fold.bind(ctrl);
+
+  // Swap a backward turn for the previous page's forward flip, already
+  // fully turned. Returns false when the normal behavior should run.
+  const startReversed = (globalPos, decidingPos = globalPos) => {
+    const turningBack =
+      render.getOrientation() === "portrait" &&
+      ctrl.getDirectionByPoint(render.convertToBook(decidingPos)) === BACK;
+    if (!turningBack) return false;
+
+    // Drop any running flip or hover corner-fold before restarting;
+    // finishing a flip may change the page, so read it afterwards
+    render.finishAnimation();
+    ctrl.reset();
+    const current = pageFlip.getCurrentPageIndex();
+    if (current < 1) return false;
+    pageFlip.turnToPage(current - 1);
+    const rect = render.getRect();
+    // Same point flipNext() uses, so start() picks a forward flip
+    const started = ctrl.start({
+      x: rect.left + rect.pageWidth * 2 - 10,
+      y: globalPos.y,
+    });
+    // Undo the page change so a failed start can't step back repeatedly
+    if (!started) pageFlip.turnToPage(current);
+    return started;
+  };
+
+  ctrl.flip = (globalPos) => {
+    if (!startReversed(globalPos)) return flip(globalPos);
+    ctrl.setState("flipping");
+
+    const rect = render.getRect();
+    const margin = rect.height / 10;
+    const bottom = ctrl.getCalculation().getCorner() === "bottom";
+    ctrl.animateFlippingTo(
+      { x: -rect.pageWidth, y: bottom ? rect.height : 0 },
+      { x: rect.pageWidth, y: bottom ? rect.height - margin : margin },
+      false
+    );
+  };
+
+  // Where a drag started (not its first move, which can already be far
+  // away) decides its direction; then the previous page follows the finger
+  ctrl.fold = (globalPos) => {
+    if (ctrl.getState() !== "user_fold") {
+      const from = pageFlip.mousePosition ?? globalPos;
+      if (!startReversed(globalPos, from)) {
+        render.finishAnimation();
+        ctrl.reset();
+        ctrl.start(from);
+      }
+    }
+    fold(globalPos);
+  };
+};
+
+const last = pictures.length - 1;
 
 // react-pageflip needs each page to forward its DOM ref
 const Page = forwardRef(({ picture, index, hard }, ref) => (
@@ -37,6 +114,21 @@ export const Reader = () => {
   const [current, setCurrent] = useState(0);
   const [size, setSize] = useState(measure);
 
+  // Stable children: react-pageflip reloads every page (killing a running
+  // flip animation) whenever it receives new child elements
+  const bookPages = useMemo(
+    () =>
+      pictures.map((picture, index) => (
+        <Page
+          key={picture}
+          picture={picture}
+          index={index}
+          hard={index === 0 || index === last}
+        />
+      )),
+    []
+  );
+
   useEffect(() => {
     if (opened === null) return;
     setCurrent(opened);
@@ -45,6 +137,20 @@ export const Reader = () => {
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, [opened]);
+
+  // react-pageflip creates its PageFlip a few renders after mounting
+  // (and again after each resize remount), so wait until it exists
+  useEffect(() => {
+    if (opened === null) return;
+    let frame;
+    const patch = () => {
+      const pageFlip = bookRef.current?.pageFlip();
+      if (pageFlip) animatePortraitBackFlip(pageFlip);
+      else frame = requestAnimationFrame(patch);
+    };
+    patch();
+    return () => cancelAnimationFrame(frame);
+  }, [opened, size]);
 
   const flip = useCallback((direction) => {
     const book = bookRef.current?.pageFlip();
@@ -71,7 +177,6 @@ export const Reader = () => {
 
   if (opened === null) return null;
 
-  const last = pictures.length - 1;
   const arrowClass =
     "absolute top-1/2 -translate-y-1/2 w-11 h-11 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white/80 text-2xl text-neutral-800 shadow hover:bg-white disabled:opacity-0 transition z-10";
 
@@ -101,14 +206,7 @@ export const Reader = () => {
         onFlip={(e) => setCurrent(e.data)}
         className="shadow-xl"
       >
-        {pictures.map((picture, index) => (
-          <Page
-            key={picture}
-            picture={picture}
-            index={index}
-            hard={index === 0 || index === last}
-          />
-        ))}
+        {bookPages}
       </HTMLFlipBook>
 
       <button
