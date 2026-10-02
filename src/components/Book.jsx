@@ -25,6 +25,11 @@ const insideCurveStrength = 0.18; // curve near the spine
 const outsideCurveStrength = 0.05; // curve near the outer edge
 const turningCurveStrength = 0.09; // extra curve while turning
 
+// Single click flips, double click opens the 2D reader. One shared timer
+// because the two clicks of a double click can land on different sheets
+const DOUBLE_CLICK_MS = 300;
+let pendingFlip;
+
 // Page ratio 4:5 to match the 1080x1350 Canva pages
 const PAGE_WIDTH = 1.28;
 const PAGE_HEIGHT = 1.6;
@@ -127,6 +132,7 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
     return mesh;
   }, []);
 
+  const setPage = useSetAtom(pageAtom);
   const setReader = useSetAtom(readerAtom);
   const [highlighted, setHighlighted] = useState(false);
   useCursor(highlighted);
@@ -205,6 +211,16 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
         e.stopPropagation();
         // Ignore the click that ends an orbit drag
         if (e.delta > 4) return;
+        // Wait briefly so the clicks of a double click don't also flip
+        clearTimeout(pendingFlip);
+        pendingFlip = setTimeout(
+          () => setPage(opened ? number : number + 1),
+          DOUBLE_CLICK_MS
+        );
+      }}
+      onDoubleClick={(e) => {
+        e.stopPropagation();
+        clearTimeout(pendingFlip);
         // The stacked sheets are too thin to trust which one the ray hit,
         // so only use its side: turned sheets lie left, showing the spread's
         // left picture (previous sheet's back); the rest show its right one

@@ -71,27 +71,29 @@ export const UI = () => {
           <p className="mt-2 text-base md:text-lg font-medium text-neutral-500">
             @thanhtomo
           </p>
-          <p className="mt-1 text-sm text-neutral-400">
-            Bấm vào trang để đọc
-          </p>
         </header>
-        <div className="w-full overflow-auto pointer-events-auto flex justify-center">
-          <div className="overflow-auto flex items-center gap-4 max-w-full p-10">
-            {pages.map((_, index) => (
+        <div className="flex flex-col items-center">
+          <p className="px-4 py-1.5 rounded-full bg-white/60 text-xs md:text-sm text-neutral-500">
+            Chạm 1 lần để lật trang · Chạm 2 lần để mở đọc
+          </p>
+          <div className="w-full overflow-auto pointer-events-auto flex justify-center">
+            <div className="overflow-auto flex items-center gap-4 max-w-full px-10 pt-4 pb-10">
+              {pages.map((_, index) => (
+                <button
+                  key={index}
+                  className={buttonClass(index === page)}
+                  onClick={() => setPage(index)}
+                >
+                  {index === 0 ? "Bìa" : `Trang ${index}`}
+                </button>
+              ))}
               <button
-                key={index}
-                className={buttonClass(index === page)}
-                onClick={() => setPage(index)}
+                className={buttonClass(page === pages.length)}
+                onClick={() => setPage(pages.length)}
               >
-                {index === 0 ? "Bìa" : `Trang ${index}`}
+                Bìa sau
               </button>
-            ))}
-            <button
-              className={buttonClass(page === pages.length)}
-              onClick={() => setPage(pages.length)}
-            >
-              Bìa sau
-            </button>
+            </div>
           </div>
         </div>
       </main>
