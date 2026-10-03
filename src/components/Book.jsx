@@ -1,6 +1,6 @@
 import { useCursor, useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { easing } from "maath";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -17,7 +17,8 @@ import {
   Vector3,
 } from "three";
 import { degToRad } from "three/src/math/MathUtils.js";
-import { pageAtom, pages, readerAtom } from "./UI";
+import { useReducedMotion } from "../hooks/use-reduced-motion";
+import { closingAtom, pageAtom, pages, readerAtom, stageAtom } from "./UI";
 
 const easingFactor = 0.5; // how fast a page turns
 const easingFactorFold = 0.3; // how fast a page folds while turning
@@ -29,11 +30,15 @@ const turningCurveStrength = 0.09; // extra curve while turning
 // because the two clicks of a double click can land on different sheets
 const DOUBLE_CLICK_MS = 300;
 let pendingFlip;
+// The tap that lifts the book off the desk (or the second tap of a double
+// tap) must not also flip a page or open the reader
+let ignoreClicksUntil = 0;
 
 // Page ratio 4:5 to match the 1080x1350 Canva pages
 const PAGE_WIDTH = 1.28;
 const PAGE_HEIGHT = 1.6;
-const PAGE_DEPTH = 0.003;
+// Thick board-book sheets so the book reads as a real hardcover
+const PAGE_DEPTH = 0.01;
 const PAGE_SEGMENTS = 30;
 const SEGMENT_WIDTH = PAGE_WIDTH / PAGE_SEGMENTS;
 
@@ -83,12 +88,14 @@ const printedPaper = {
   emissiveIntensity: 0,
 };
 
-// BoxGeometry face order: +x, -x, +y, -y, +z (front), -z (back)
+// BoxGeometry face order: +x, -x, +y, -y, +z (front), -z (back).
+// Cream paper edges and a soft lavender spine instead of stark white/black
+const paperEdge = new MeshStandardMaterial({ color: "#f1e8da", roughness: 0.95 });
 const pageMaterials = [
-  new MeshStandardMaterial({ color: whiteColor }),
-  new MeshStandardMaterial({ color: "#111" }),
-  new MeshStandardMaterial({ color: whiteColor }),
-  new MeshStandardMaterial({ color: whiteColor }),
+  paperEdge,
+  new MeshStandardMaterial({ color: "#b9a9c9", roughness: 0.95 }),
+  paperEdge,
+  paperEdge,
 ];
 
 pages.forEach((page) => {
@@ -96,7 +103,18 @@ pages.forEach((page) => {
   useTexture.preload(`/textures/${page.back}.webp`);
 });
 
-const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
+const Page = ({
+  number,
+  front,
+  back,
+  page,
+  opened,
+  bookClosed,
+  stage,
+  closing,
+  reduced,
+  ...props
+}) => {
   const [picture, picture2] = useTexture([
     `/textures/${front}.webp`,
     `/textures/${back}.webp`,
@@ -134,14 +152,17 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
 
   const setPage = useSetAtom(pageAtom);
   const setReader = useSetAtom(readerAtom);
+  const setStage = useSetAtom(stageAtom);
   const [highlighted, setHighlighted] = useState(false);
   useCursor(highlighted);
 
-  useFrame((_, delta) => {
+  useFrame(({ clock }, delta) => {
     if (!skinnedMeshRef.current) return;
 
-    // Soft glow on hover
-    const emissiveIntensity = highlighted ? 0.22 : 0;
+    // Soft glow on hover; on the desk a slow "breathing" glow invites a tap
+    const breathing = reduced ? 0.1 : 0.1 + 0.06 * Math.sin(clock.elapsedTime * 2.2);
+    const idleGlow = stage === "desk" ? breathing : 0;
+    const emissiveIntensity = highlighted ? 0.22 : idleGlow;
     const mats = skinnedMeshRef.current.material;
     mats[4].emissiveIntensity = mats[5].emissiveIntensity = MathUtils.lerp(
       mats[4].emissiveIntensity,
@@ -211,6 +232,15 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
         e.stopPropagation();
         // Ignore the click that ends an orbit drag
         if (e.delta > 4) return;
+        // On the desk a tap only lifts the book; nothing happens in the intro
+        if (stage !== "reading") {
+          if (stage === "desk") {
+            ignoreClicksUntil = performance.now() + DOUBLE_CLICK_MS;
+            setStage("reading");
+          }
+          return;
+        }
+        if (closing || performance.now() < ignoreClicksUntil) return;
         // Wait briefly so the clicks of a double click don't also flip
         clearTimeout(pendingFlip);
         pendingFlip = setTimeout(
@@ -220,6 +250,8 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
       }}
       onDoubleClick={(e) => {
         e.stopPropagation();
+        if (stage !== "reading" || closing || performance.now() < ignoreClicksUntil)
+          return;
         clearTimeout(pendingFlip);
         // The stacked sheets are too thin to trust which one the ray hit,
         // so only use its side: turned sheets lie left, showing the spread's
@@ -241,6 +273,13 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
 export const Book = ({ ...props }) => {
   const [page] = useAtom(pageAtom);
   const [delayedPage, setDelayedPage] = useState(page);
+  const stage = useAtomValue(stageAtom);
+  const closing = useAtomValue(closingAtom);
+  const reduced = useReducedMotion();
+
+  // A flip queued just before the stage changed or the book started closing
+  // must not fire afterwards
+  useEffect(() => () => clearTimeout(pendingFlip), [stage, closing]);
 
   // Flip one page at a time when jumping several pages
   useEffect(() => {
@@ -265,6 +304,9 @@ export const Book = ({ ...props }) => {
           number={index}
           opened={delayedPage > index}
           bookClosed={delayedPage === 0 || delayedPage === pages.length}
+          stage={stage}
+          closing={closing}
+          reduced={reduced}
           {...pageData}
         />
       ))}
