@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hòm Thư Ẩn Danh · Thần số học 20/10</title>
+<meta name="description" content="Gửi câu chuyện tình cảm của bạn một cách ẩn danh cho Workshop Thần số học 20/10.">
+<meta property="og:title" content="Hòm Thư Ẩn Danh · Thần số học 20/10">
+<meta property="og:description" content="Mỗi chúng ta đều đặc biệt theo cách riêng và ai cũng có một câu chuyện để kể.">
+<meta property="og:image" content="poster.jpg">
+<meta name="theme-color" content="#f7efe6">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="poster.jpg">
+<style>
+  :root {
+    --bg: #f7efe6;
+    --paper: #fffaf4;
+    --ink: #3f3a36;
+    --muted: #7b716a;
+    --pink: #e98aa5;
+    --pink-soft: #f9d3de;
+    --pink-deep: #c9587a;
+    --green: #4f6b3c;
+    --line: #ead9cc;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.7 "Be Vietnam Pro", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Hero: the portrait video is the poster, centred on wide screens */
+  .hero {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    background: var(--bg);
+  }
+  .hero-frame {
+    position: relative;
+    width: min(100vw, calc(100svh * 9 / 16));
+    aspect-ratio: 9 / 16;
+  }
+  .hero video, .hero img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  /* Invisible hit area over the painted "Điền form ẩn danh" button */
+  .hero-cta {
+    position: absolute;
+    left: 26%; width: 48%;
+    top: 69%; height: 6%;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .hero-cta:focus-visible { outline: 3px solid var(--pink-deep); outline-offset: 4px; }
+  .scroll-hint {
+    position: absolute; left: 50%; bottom: 14px;
+    transform: translateX(-50%);
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 250, 244, .85);
+    color: var(--pink-deep);
+    display: grid; place-items: center;
+    text-decoration: none;
+    font-size: 18px;
+    box-shadow: 0 4px 14px rgba(120, 80, 60, .15);
+    animation: bob 2s ease-in-out infinite;
+  }
+  @keyframes bob { 50% { transform: translate(-50%, 6px); } }
+
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 16px 64px;
+  }
+  .letter {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 28px 22px;
+    box-shadow: 0 10px 30px rgba(120, 80, 60, .08);
+  }
+  .script {
+    font-family: "Dancing Script", cursive;
+    color: var(--pink);
+    line-height: 1.15;
+  }
+  .letter h1 {
+    margin: 0 0 4px;
+    font-size: clamp(34px, 8vw, 46px);
+    text-align: center;
+  }
+  .letter .sub {
+    text-align: center;
+    margin: 0 0 20px;
+    color: var(--green);
+    font-weight: 600;
+  }
+  .letter p { margin: 0 0 14px; }
+  .quote {
+    position: relative;
+    margin: 6px 0 20px;
+    padding: 22px 44px;
+    text-align: center;
+    font-weight: 500;
+    font-style: italic;
+  }
+  .quote p { margin: 0 0 6px; }
+  .quote::before, .quote::after {
+    position: absolute;
+    font: 700 64px/1 Georgia, "Times New Roman", serif;
+    color: var(--pink);
+  }
+  .quote::before { content: "\201C"; left: 0; top: 0; }
+  .quote::after { content: "\201D"; right: 0; bottom: -18px; }
+
+  form {
+    margin-top: 28px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 28px 22px;
+    box-shadow: 0 10px 30px rgba(120, 80, 60, .08);
+  }
+  form h2 {
+    margin: 0 0 6px;
+    font-size: 34px;
+    text-align: center;
+  }
+  .note {
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0 0 22px;
+  }
+  .field { margin-bottom: 18px; }
+  label { display: block; font-weight: 600; margin-bottom: 6px; }
+  .hint { font-weight: 400; color: var(--muted); font-size: 14px; }
+  input[type="text"], select, textarea {
+    width: 100%;
+    font: inherit;
+    color: inherit;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 11px 13px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  textarea { min-height: 150px; resize: vertical; }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--pink);
+    box-shadow: 0 0 0 3px var(--pink-soft);
+  }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 420px) { .row { grid-template-columns: 1fr; } }
+  .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; }
+  .check input { margin-top: 6px; accent-color: var(--pink-deep); }
+  .honey { position: absolute; left: -9999px; }
+  button[type="submit"] {
+    width: 100%;
+    border: 0;
+    border-radius: 999px;
+    padding: 14px 20px;
+    font: 600 17px/1 "Be Vietnam Pro", sans-serif;
+    letter-spacing: .02em;
+    color: #fff;
+    background: var(--pink-deep);
+    cursor: pointer;
+    transition: transform .1s, opacity .15s;
+  }
+  button[type="submit"]:hover { opacity: .92; }
+  button[type="submit"]:active { transform: scale(.98); }
+  button[disabled] { opacity: .6; cursor: progress; }
+  .status { margin: 14px 0 0; text-align: center; min-height: 1.7em; }
+  .status.error { color: #b3261e; }
+
+  .thanks {
+    display: none;
+    text-align: center;
+    margin-top: 28px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 40px 22px;
+  }
+  .thanks h2 { margin: 0 0 10px; font-size: 40px; }
+  .thanks button {
+    margin-top: 10px;
+    background: none; border: 0;
+    color: var(--pink-deep);
+    font: inherit; text-decoration: underline; cursor: pointer;
+  }
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 0 16px 40px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .scroll-hint { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-frame">
+    <img src="poster.jpg" alt="" aria-hidden="true">
+    <video autoplay muted loop playsinline preload="auto" poster="poster.jpg" aria-label="Hòm thư ẩn danh – Thần số học 20/10 đang tới">
+      <source src="hero.webm" type="video/webm">
+      <source src="hero.mp4" type="video/mp4">
+    </video>
+    <a class="hero-cta" href="#gui-thu" aria-label="Điền form ẩn danh"></a>
+    <a class="scroll-hint" href="#loi-ngo" aria-label="Đọc tiếp">↓</a>
+  </div>
+</header>
+
+<main>
+  <section class="letter" id="loi-ngo">
+    <h1 class="script">Hòm thư ẩn danh</h1>
+    <p class="sub">Workshop Thần số học 20/10 đang trên đường tới!</p>
+
+    <p>Xin feedback từ mấy chị, mấy bạn, mấy bé đã từng tìm đến tham vấn hay workshop Thần số học để gỡ rối bài học tình cảm!</p>
+    <p>Dạo này gặp rất nhiều số 6 đau khổ vì tình yêu. Thông điệp được truyền đi nhiều nhất là:</p>
+    <blockquote class="quote">
+      <p>Khi mình đủ đầy, trọn vẹn thì mọi thứ xung quanh sẽ tự khắc xoay chuyển.</p>
+      <p>Yêu thương, chăm sóc bản thân thật tốt là điều ưu tiên số một!</p>
+    </blockquote>
+    <p>Nhưng mà nhiều khi kể chuyện bằng lời và hướng dẫn thực hành vẫn chưa đủ cho mí cổ. Nên xin phép tất cả những người phụ nữ em đã từng gặp hãy viết cho em đôi dòng về biến cố tình cảm của mình và cách vượt qua bài học tình cảm đó, em nghĩ những câu chuyện thật sẽ hỗ trợ cho rất nhiều nhiều bạn nữ khác.</p>
+    <p>Em xin phép dùng những câu chuyện này cho Workshop Thần số học 20/10, danh tính của mọi người được giữ kín nên mong mọi người có thể thoải mái chia sẻ. Mọi chia sẻ và đóng góp của mọi người sẽ góp phần cho Workshop Thần số học 20/10 này thêm phần ý nghĩa. Yêu thương và trân quý nhiều nhiều!</p>
+    <p>Ngoài ra nếu mọi người có bất kỳ câu chuyện hoặc trải nghiệm tâm đắc nào muốn lan toả để truyền cảm hứng hay giúp người khác có thêm niềm tin động lực khi rơi vào câu chuyện tương tự mà bản thân đã gặp phải. Xin hãy gửi về hòm thư cho em. Trân quý và cảm ơn mn cực cực kỳ nhiều luôn ạ ^^</p>
+  </section>
+
+  <form id="gui-thu" novalidate>
+    <h2 class="script">Gửi câu chuyện của bồ ở đây</h2>
+    <p class="note">Không cần tên, không cần email. Chỉ cần câu chuyện của bạn thôi ♡</p>
+
+    <div class="row">
+      <div class="field">
+        <label for="biet-danh">Biệt danh <span class="hint">(không bắt buộc)</span></label>
+        <input type="text" id="biet-danh" name="Biệt danh" maxlength="60" placeholder="Ví dụ: Một cô số 6">
+      </div>
+      <div class="field">
+        <label for="so-chu-dao">Số chủ đạo <span class="hint">(nếu biết)</span></label>
+        <select id="so-chu-dao" name="Số chủ đạo">
+          <option value="">Chưa rõ</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+          <option>6</option><option>7</option><option>8</option><option>9</option>
+          <option>10</option><option>11</option><option>22</option><option>33</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="bien-co">Câu chuyện của bạn</label>
+      <textarea id="bien-co" name="Câu chuyện" required placeholder="Chuyện gì đã xảy ra với bạn?"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="vuot-qua">Bạn đã vượt qua bài học đó như thế nào?</label>
+      <textarea id="vuot-qua" name="Cách vượt qua" placeholder="Điều gì đã giúp bạn đứng dậy, chữa lành và yêu thương bản thân hơn?"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="loi-nhan">Lời nhắn cho những bạn nữ đang trải qua điều tương tự <span class="hint">(không bắt buộc)</span></label>
+      <textarea id="loi-nhan" name="Lời nhắn" style="min-height:100px" placeholder="Một câu bạn ước ai đó đã nói với mình lúc ấy…"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="check">
+        <input type="checkbox" name="Đồng ý dùng cho workshop" value="Có" checked>
+        <span>Mình đồng ý để câu chuyện này được chia sẻ ẩn danh trong Workshop Thần số học 20/10.</span>
+      </label>
+    </div>
+
+    <input class="honey" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+    <button type="submit">Gửi vào hòm thư ♡</button>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+  </form>
+
+  <section class="thanks" id="thanks" tabindex="-1">
+    <h2 class="script">Cảm ơn bạn nhiều lắm!</h2>
+    <p>Câu chuyện của bạn đã nằm gọn trong hòm thư rồi.<br>Trân quý bạn vì đã dũng cảm chia sẻ ♡</p>
+    <button type="button" id="again">Gửi thêm một câu chuyện khác</button>
+  </section>
+</main>
+
+<footer>Mỗi chúng ta đều đặc biệt theo cách riêng và ai cũng có một câu chuyện để kể.</footer>
+
+<script>
+  // FormSubmit forwards each submission to the inbox; nothing identifying is collected.
+  const ENDPOINT = "https://formsubmit.co/ajax/2c2d30766ddd20d2b41323bd44a12cc3";
+  // Google Apps Script web app that also logs each story as a row in the Sheet.
+  const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbx0dlF6V9PtrQIXtSbKC5lFH6Sbbz4r32xDC9MFolpCIsrjHrnTzLt4qysHXVmbBoa3gw/exec";
+  const form = document.getElementById("gui-thu");
+  const statusEl = document.getElementById("status");
+  const thanks = document.getElementById("thanks");
+  const story = document.getElementById("bien-co");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    statusEl.className = "status";
+    if (!story.value.trim()) {
+      statusEl.textContent = "Bạn kể cho mình nghe câu chuyện trước đã nhé.";
+      statusEl.classList.add("error");
+      story.focus();
+      return;
+    }
+    const data = Object.fromEntries(new FormData(form));
+    if (data._honey) return;
+    data._subject = "💌 Hòm thư ẩn danh – câu chuyện mới";
+    data._template = "box";
+    data._captcha = "false";
+
+    const btn = form.querySelector("button[type=submit]");
+    btn.disabled = true;
+    statusEl.textContent = "Đang gửi…";
+    if (SHEET_ENDPOINT) {
+      // Apps Script sends no CORS headers, so post as a simple request and ignore the reply.
+      fetch(SHEET_ENDPOINT, { method: "POST", mode: "no-cors", body: JSON.stringify(data) }).catch(() => {});
+    }
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || String(json.success) !== "true") throw new Error(json.message || res.status);
+      form.reset();
+      form.style.display = "none";
+      thanks.style.display = "block";
+      thanks.focus();
+      statusEl.textContent = "";
+    } catch (err) {
+      statusEl.textContent = "Ôi, gửi chưa được. Bạn thử lại sau ít phút nhé.";
+      statusEl.classList.add("error");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById("again").addEventListener("click", () => {
+    thanks.style.display = "none";
+    form.style.display = "block";
+    form.scrollIntoView();
+  });
+</script>
+</body>
+</html>
